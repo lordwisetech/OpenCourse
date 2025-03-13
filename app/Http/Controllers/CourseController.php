@@ -88,28 +88,22 @@ public function destroy($id)
 
 
 
-    public function update(Request $request, Course $course)
-    {
-        $request->validate([
-            'title' => 'required|string|max:500',
-            'description' => 'required|string',
-            'video_url' => 'nullable|url',
-            'contents' => 'nullable|array',
-            'contents.*.heading' => 'nullable|string',
-            'contents.*.text' => 'nullable|string',
-            'contents.*.code' => 'nullable|string',
-        ]);
-    
-        $course->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'video_url' => $request->video_url,
-            'contents' => $request->contents, // Updated JSON contents
-        ]);
-    
-        return redirect('/my-courses')->with('success', 'Course updated successfully!');
-
+public function update(Request $request, $id)
+{
+    $course = Course::find($id);
+    if (!$course) {
+        return back()->with('error', 'Course not found!');
     }
+
+    $course->title = $request->title;
+    $course->description = $request->description;
+    $course->video_url = $request->video_url;
+    $course->contents = $request->contents;
+    $course->save(); // Force save
+
+    return redirect('/my-courses')->with('success', 'Course updated successfully!');
+}
+
     
 
 

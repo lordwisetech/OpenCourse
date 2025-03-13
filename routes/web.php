@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CommentController;
 
 
 use App\Http\Controllers\AuthController;
@@ -83,3 +84,5 @@ Route::get('/courses/{id}', [CourseController::class, 'show'])->name('coursessho
 
 
  Route::get('/my-courses', [CourseController::class, 'myCourses'])->name('courses.my');
+ Route::post('/courses/{course}/comment', [CommentController::class, 'store'])->name('comments.store');
+ 

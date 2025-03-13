@@ -32,4 +32,10 @@ class Course extends Model
     {
         return $this->hasMany(contents::class); // CourseContent model should exist
     }
+
+    public function comments()
+{
+    return $this->hasMany(Comment::class)->whereNull('parent_id');
+}
+
 }

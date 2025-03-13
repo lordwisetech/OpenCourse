@@ -1,0 +1,8 @@
+use App\Models\Comment;
+
+Comment::create([
+    'course_id' => 4,  // Replace with the actual course ID
+    'user_id' => 1,    // Replace with an existing user ID (or null for guest)
+    'comment' => 'This is a test comment!',
+    'parent_id' => null,  // Keep null for a main comment
+]);

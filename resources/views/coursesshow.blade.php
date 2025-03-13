@@ -14,7 +14,13 @@
                     ← Back to Courses
                 </a>
             @endauth
+
+            
         </div>
+<!-- Show Course Creator -->
+<div class="mt-4 text-gray-400 text-sm">
+    Created by : <span class="font-bold text-blue-400">{{ $course->user->name ?? 'Unknown' }}</span>
+</div>
 
         <!-- Course Description -->
         <p class="mt-6 text-gray-300 text-lg leading-relaxed">
@@ -55,6 +61,52 @@
                 </div>
             @endforeach
         </div>
+
+
+        <h2 class="text-xl font-bold text-blue-400 mt-8 border-b border-gray-700 pb-2">Comments</h2>
+
+<!-- Comment Form -->
+<form action="{{ route('comments.store', $course) }}" method="POST" class="mt-4">
+    @csrf
+    <textarea name="comment" class="w-full p-2 rounded-lg bg-gray-800 text-white" rows="3" placeholder="Write a comment..." required></textarea>
+    <button type="submit" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg">
+        Post Comment
+    </button>
+</form>
+
+<!-- Display Comments -->
+<div class="mt-6 space-y-4">
+    
+    @foreach ($course->comments as $comment)
+        <div class="p-4 bg-gray-800 rounded-lg shadow-md">
+            <p class="text-blue-400 font-bold">
+                {{ $comment->user ? $comment->user->name : $comment->guest_name }}
+            </p>
+            <p class="text-gray-300">{{ $comment->comment }}</p>
+
+            <!-- Reply Form -->
+            <form action="{{ route('comments.store', $course) }}" method="POST" class="mt-2">
+                @csrf
+                <input type="hidden" name="parent_id" value="{{ $comment->id }}">
+                <textarea name="comment" class="w-full p-2 rounded-lg bg-gray-700 text-white" rows="2" placeholder="Reply..." required></textarea>
+                <button type="submit" class="mt-1 px-3 py-1 bg-green-600 hover:bg-green-500 text-white rounded-lg">
+                    Reply
+                </button>
+            </form> 
+ 
+            <!-- Show Replies -->
+            @foreach ($comment->replies as $reply)
+                <div class="ml-6 mt-2 p-3 bg-gray-700 rounded-lg">
+                    <p class="text-blue-400 font-bold">
+                        {{ $reply->user ? $reply->user->name : $reply->guest_name }}
+                    </p>
+                    <p class="text-gray-300">{{ $reply->comment }}</p>
+                </div>
+            @endforeach
+        </div>
+    @endforeach
+</div>  
+
 
         <!-- Show Tabs Only for Logged-in Users -->
         @auth
