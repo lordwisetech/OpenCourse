@@ -1,76 +1,69 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Add Alpine.js -->
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<div class="min-h-screen bg-gray-900 text-white p-6 flex justify-center">
+    <div class="w-full max-w-3xl">
+        <div class="bg-gray-800 p-5 shadow-lg flex justify-between items-center rounded-lg">
+            <h1 class="text-2xl font-bold">Create Course</h1>
+            <a href="/dashboard" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-md">
+                ← Back to Dasboard
+            </a>
+        </div>
 
-<!-- Navbar -->
-<nav class="bg-gray-900 shadow-lg py-4">
-    <div class="container mx-auto flex justify-center space-x-6">
-        <a href="/dashboard" class="text-white hover:text-blue-400 transition">Home</a>
-        <a href="/courses" class="text-white hover:text-blue-400 transition"> Update Course</a>
-        <a href="/create/course" class="text-white hover:text-blue-400 transition">Create Course</a>
-        <a href="/create/course" class="text-white hover:text-blue-400 transition">My students</a>
-       
-    </div>
-</nav>
-
-<!-- Course Creation Form -->
-<div class="flex flex-col items-center justify-center min-h-screen bg-gray-950 p-6">
-    <div class="bg-gray-800 shadow-lg shadow-blue-500/50 rounded-lg p-6 w-full max-w-3xl">
-        <h1 class="text-3xl font-bold text-white mb-6">Create Course</h1>
-        <form action="{{ route('courses.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form method="POST" action="{{ route('courses.store') }}" class="mt-6 p-6 bg-gray-800 rounded-lg shadow-lg">
             @csrf
 
-            <!-- Course Title -->
-            <div>
-                <label class="block text-gray-300 font-bold mb-2">Course Title</label>
-                <input type="text" name="title" class="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400" required>
+            <div class="mb-4">
+                <label class="block text-lg font-semibold">Title</label>
+                <input type="text" name="title" class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
-            <!-- Course Description -->
-            <div>
-                <label class="block text-gray-300 font-bold mb-2">Course Description</label>
-                <textarea name="description" class="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400" required></textarea>
+            <div class="mb-4">
+                <label class="block text-lg font-semibold">Description</label>
+                <textarea name="description" class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
 
-            <!-- Video URL -->
-            <div>
-                <label class="block text-gray-300 font-bold mb-2">Video URL</label>
-                <input type="text" name="video_url" class="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400">
+            <div class="mb-4">
+                <label class="block text-lg font-semibold">Video URL (Optional)</label>
+                <input type="url" name="video_url" class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <!-- Thumbnail Upload -->
-            <div>
-                <label class="block text-gray-300 font-bold mb-2">Thumbnail</label>
-                <input type="file" name="thumbnail" class="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white">
+            <h2 class="text-xl font-bold mt-6">Course Content</h2>
+            <div id="content-sections" class="space-y-4 mt-4">
+                <!-- Dynamic Content Sections will be added here -->
             </div>
 
-           <!-- Course Content (Dynamic) -->
-<div x-data="{ contents: [] }" class="space-y-4">
-    <label class="block text-gray-300 font-bold mb-2">Course Content</label>
-    
-    <template x-for="(content, index) in contents" :key="index">
-        <div class="flex flex-col space-y-2 bg-gray-700 p-4 rounded">
-            <textarea x-model="contents[index]" name="contents[]" placeholder="Enter course content..." 
-                class="w-full p-3 border border-gray-600 rounded bg-gray-800 text-white focus:ring-2 focus:ring-blue-400 h-32"></textarea>
-            <button type="button" @click="contents.splice(index, 1)" 
-                class="bg-red-500 text-white px-3 py-1 rounded self-end hover:bg-red-600">Remove</button>
-        </div>
-    </template>
+            <button type="button" onclick="addContentSection()" class="mt-4 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg shadow-md transition">
+                + Add Section
+            </button>
 
-    <button type="button" @click="contents.push('')" 
-        class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-        + Add Content
-    </button>
-</div>
-
-
-            <!-- Submit Button -->
-            <div>
-                <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition">Create Course</button>
-            </div>
+            <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg shadow-md transition">
+                Create Course
+            </button>
         </form>
     </div>
 </div>
+
+<script>
+    function addContentSection() {
+        const container = document.getElementById('content-sections');
+        const index = container.children.length;
+
+        const section = document.createElement('div');
+        section.classList.add('mb-4', 'p-4', 'bg-gray-700', 'rounded-lg', 'shadow-md');
+
+        section.innerHTML = `
+            <label class="block text-lg font-semibold">Heading</label>
+            <input type="text" name="contents[${index}][heading]" class="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+
+            <label class="block text-lg font-semibold mt-2">Content</label>
+            <textarea name="contents[${index}][text]" class="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+
+            <label class="block text-lg font-semibold mt-2">Code (Optional)</label>
+            <textarea name="contents[${index}][code]" class="w-full p-3 rounded-lg bg-gray-900 text-green-300 font-mono border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        `;
+
+        container.appendChild(section);
+    }
+</script>
 @endsection

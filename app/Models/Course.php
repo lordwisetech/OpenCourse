@@ -27,4 +27,9 @@ class Course extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function contents()
+    {
+        return $this->hasMany(contents::class); // CourseContent model should exist
+    }
 }

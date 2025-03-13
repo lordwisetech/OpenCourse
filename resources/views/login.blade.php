@@ -25,6 +25,7 @@
         <form id="loginForm">
             <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 border rounded text-black" required>
             <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 border rounded text-black" required>
+            <a href="/register" class="text-blue-400 hover:underline">Don't have an account? Register here</a>
             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg w-full">Login</button>
         </form>
     </div>

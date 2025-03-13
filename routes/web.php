@@ -14,6 +14,12 @@ Route:: get('/register', function(){
     return view('register');
 });
 
+Route::get('/courses/{course}', function ($id) {
+    $course = \App\Models\Course::with('user')->findOrFail($id);
+    return view('coursesshow', compact('course'));
+})->name('coursesshow');
+
+
 Route::get('/', function () {
     return view('Landing');
 });
@@ -45,7 +51,7 @@ Route::get('/all-courses', function () {
 
 //Route::get('/courses', [CourseController::class, 'index'])->name('courses');
 
-Route::get('/courses', [CourseController::class, 'index'])->middleware('auth');
+
 
 
 Route::middleware(['auth'])->group(function () {
@@ -63,9 +69,17 @@ Route::get('/logout', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
 Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+
+
 Route::put('/courses/{id}', [CourseController::class, 'update'])->name('courses.update');
 
 
+Route::get('/courses/{id}', [CourseController::class, 'show'])->name('coursesshow');
+
+
+
+ Route::get('/my-courses', [CourseController::class, 'myCourses'])->name('courses.my');

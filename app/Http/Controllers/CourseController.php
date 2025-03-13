@@ -13,45 +13,56 @@ class CourseController extends  Controller
         return view('courses.create');
     }
     
+
+    # store method
     public function store(Request $request)
     {
-        // Validate input
         $request->validate([
-            'title'       => 'required|string|max:500',
+            'title' => 'required|string|max:500',
             'description' => 'required|string',
-            'video_url'   => 'nullable|url',
-            'thumbnail'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'contents'    => 'nullable|array',
-            'contents.*'  => 'string|max:500'
+            'video_url' => 'nullable|url',
+            'contents' => 'nullable|array',
+            'contents.*.heading' => 'nullable|string',
+            'contents.*.text' => 'nullable|string',
+            'contents.*.code' => 'nullable|string',
         ]);
-
-        // Handle file upload for thumbnail
-        if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
-        } else {
-            $thumbnailPath = null;
+        
+        // Ensure the user is logged in
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
-        // Create the course and associate with the logged-in user
-        Course::create([
-            'title'       => $request->title,
+        
+        $course = Course::create([
+            'title' => $request->title,
             'description' => $request->description,
-            'video_url'   => $request->video_url,
-            'thumbnail'   => $thumbnailPath,
-            'contents'    => $request->contents, // Stored as JSON thanks to model casting
-            'user_id'     => Auth::id(),
+            'video_url' => $request->video_url,
+            'contents' => $request->contents,
+            'user_id' => auth()->id(), // ✅ Ensure user_id is included
         ]);
+        
+        return redirect('/my-courses')->with('success', 'Course updated successfully!');
+        
+    }
+    
 
 
-        return redirect()->route('courses.index')->with('success', 'Course created successfully!');
+public function index(Request $request)
+
+{
+    $query = Course::query();
+
+    // Search by course title
+    if ($request->filled('search')) {
+        $query->where('title', 'like', '%' . $request->search . '%');
     }
 
+    // Retrieve the filtered courses
+    $courses = $query->get();
 
-public function index()
-{
-    $userId = Auth::id(); // Get the logged-in user ID
-    $courses = Course::where('user_id', $userId)->get(); // Fetch only user's courses
-    return view('courses', compact('courses'));// Return courses as JSON
+    return view('all', compact('courses'));
+
+
+
 }
 
 
@@ -70,38 +81,53 @@ public function destroy($id)
 
 
     public function edit($id)
-    {
-        $course = Course::find($id);
-
-        if (!$course) {
-            return redirect()->back()->with('error', 'Course not found');
-        }
-
-        return view('edit', compact('course'));
-    }
-
-
-    public function update(Request $request, $id)
 {
-    $course = Course::find($id);
-
-    if (!$course) {
-        return redirect()->back()->with('error', 'Course not found');
-    }
-
-    $course->title = $request->input('title');
-    $course->description = $request->input('description');
-    $course->video_url = $request->input('video_url');
-
-    if ($request->hasFile('thumbnail')) {
-        $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
-        $course->thumbnail = $thumbnailPath;
-    }
-
-    $course->save();
-
-    return redirect()->route('courses.index')->with('success', 'Course updated successfully');
+    $course = Course::findOrFail($id);  // Fetch the course by ID
+    return view('edit', compact('course')); // Pass course data to view
 }
+
+
+
+    public function update(Request $request, Course $course)
+    {
+        $request->validate([
+            'title' => 'required|string|max:500',
+            'description' => 'required|string',
+            'video_url' => 'nullable|url',
+            'contents' => 'nullable|array',
+            'contents.*.heading' => 'nullable|string',
+            'contents.*.text' => 'nullable|string',
+            'contents.*.code' => 'nullable|string',
+        ]);
+    
+        $course->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'video_url' => $request->video_url,
+            'contents' => $request->contents, // Updated JSON contents
+        ]);
+    
+        return redirect('/my-courses')->with('success', 'Course updated successfully!');
+
+    }
+    
+
+
+public function show($id)
+{
+    $course = Course::with('user', 'contents')->findOrFail($id);
+    return view('coursesshow', compact('course'));
+}
+
+public function myCourses()
+{
+    $courses = Course::where('user_id', auth()->id())->get(); // Get only the logged-in user's courses
+
+    return view('my_courses', compact('courses')); // Ensure this Blade file exists
+}
+
+
+
 
 
     // Add other methods (index, show, etc.) as needed.
